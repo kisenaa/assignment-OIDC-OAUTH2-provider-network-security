@@ -1,0 +1,97 @@
+serve:
+  cookies:
+    same_site_mode: None
+    secure: false
+  public:
+    cors:
+      enabled: true
+      allow_credentials: true
+      allowed_origins:
+      - http://localhost:5173
+      - http://localhost:8080
+      - http://192.168.175.1:5173
+      - http://192.168.175.1:8080
+      - https://192.168.175.128:8443
+      - https://web.elysia.com
+      - https://api.elysia.com
+      - https://keycloak.elysia.com:8443
+      - https://389-ldaps.elysia.com
+      - http://192.168.175.1
+      - http://192.168.175.128
+      - https://192.168.175.1
+      - https://192.168.175.128
+      debug: true
+    base_url: https://hydra.elysia.com:4444
+  admin:
+    cors:
+      enabled: true
+      allow_credentials: true
+      allowed_origins:
+        - http://localhost:5173
+        - http://localhost:8080
+        - http://192.168.175.1:5173
+        - http://192.168.175.1:8080
+        - https://192.168.175.128:8443
+        - https://web.elysia.com
+        - https://api.elysia.com
+        - https://keycloak.elysia.com:8443
+        - https://389-ldaps.elysia.com
+        - http://192.168.175.1
+        - http://192.168.175.128
+        - https://192.168.175.1
+        - https://192.168.175.128
+      debug: true
+    base_url: https://hydra.elysia.com:4445
+  tls:
+    enabled: true
+    key:
+      path: /cert/server.key
+    cert:
+      path: /cert/server.crt
+ 
+
+dsn: postgres://hydra:secret@postgres:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+
+urls:
+  self:
+    issuer: https://hydra.elysia.com:4444/
+
+  login: https://api.elysia.com/auth/hydra/login
+  consent: https://api.elysia.com/auth/hydra/consent
+  logout: https://api.elysia.com/auth/ory-hydra/logout
+  post_logout_redirect: https://web.elysia.com/
+
+ttl:
+  access_token: 1h
+  refresh_token: 1h
+  id_token: 1h
+  auth_code: 10m
+
+oauth2:
+  expose_internal_errors: true
+
+secrets:
+  system:
+    - this-is-the-primary-secret
+    - this-is-an-old-secret
+    - this-is-another-old-secret
+  cookie:
+    - this-is-the-primary-secret
+    - this-is-an-old-secret
+    - this-is-another-old-secret
+
+oidc:
+  subject_identifiers:
+    supported_types:
+      - pairwise
+      - public
+    pairwise:
+      salt: youReallyNeedToChangeThis
+  dynamic_client_registration:
+    default_scope:
+      - openid
+
+log:
+  level: info
+  leak_sensitive_values: true
+  format: json

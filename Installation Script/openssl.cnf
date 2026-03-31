@@ -1,0 +1,28 @@
+[ req ]
+default_bits       = 256
+prompt             = no
+default_md         = sha256
+distinguished_name = dn
+req_extensions     = req_ext
+
+[ dn ]
+C  = ID
+ST = Surabaya
+L  = Surabaya
+O  = Elysia
+CN = localhost
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = localhost
+DNS.2 = crystal-vm
+DNS.3 = *.elysia.com
+DNS.4 = 389ds
+DNS.5 = keycloak
+DNS.6 = hydra
+IP.1  = 127.0.0.1
+IP.2  = ::1
+IP.3  = 192.168.175.128
+IP.4  = 192.168.175.1

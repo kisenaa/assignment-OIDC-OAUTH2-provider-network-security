@@ -1,0 +1,68 @@
+name: oryhydra
+
+networks:
+  hydranet:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=hydra
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=hydra
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "hydra"]
+      interval: 1s
+      timeout: 30s
+      retries: 30
+    networks:
+      - hydranet
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  hydra-migrate:
+    image: oryd/hydra:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DSN=postgres://hydra:secret@postgres:5432/hydra?sslmode=disable
+    command: migrate sql -e --yes
+    networks:
+      - hydranet
+
+  hydra:
+    image: oryd/hydra:latest
+    depends_on:
+      - postgres
+      - hydra-migrate
+    command: serve all -c /etc/hydra/hydra.yml
+    # environment:
+    #   # These variables force Hydra to actually use the files you've mounted
+    #   - SERVE_PUBLIC_TLS_CERT_PATH=/cert/server.crt
+    #   - SERVE_PUBLIC_TLS_KEY_PATH=/cert/server.key
+    #   - SERVE_ADMIN_TLS_CERT_PATH=/cert/server.crt
+    #   - SERVE_ADMIN_TLS_KEY_PATH=/cert/server.key
+    #   # Ensure Hydra doesn't think it's behind a proxy that handles SSL
+    #   - SERVE_TLS_KEY_PATH=/cert/server.key
+    #   - SERVE_TLS_CERT_PATH=/cert/server.crt
+    #   - URLS_SELF_ISSUER=https://localhost:4444/
+    #   - URLS_SELF_BASE=https://localhost:4444/
+    #   - NODE_TLS_REJECT_UNAUTHORIZED=0
+
+    restart: on-failure
+    ports:
+      - "4444:4444"
+      - "4445:4445"
+      - "5555:5555"
+    volumes:
+      - ./config:/etc/hydra
+      - ./cert:/cert
+    networks:
+      - hydranet
+
+volumes:
+  postgres-data:
